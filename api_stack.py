@@ -1,0 +1,27 @@
+from aws_cdk import (
+    Stack,
+    aws_apigateway as apigateway,
+    CfnOutput
+)
+from constructs import Construct
+
+class ApiStack(Stack):
+    def __init__(self, scope: Construct, id: str, plotting_lambda, **kwargs):
+        super().__init__(scope, id, **kwargs)
+
+        # 创建 API Gateway
+        api = apigateway.LambdaRestApi(
+            self, "PlottingApi",
+            handler=plotting_lambda
+        )
+
+        # 添加 API 路由
+        plot_resource = api.root.add_resource("plot")
+        plot_resource.add_method("GET")
+
+        # 输出 API 的 URL
+        self.api_url_output = CfnOutput(
+            self, "ApiUrl",
+            value=api.url,
+            description="The URL of the API Gateway"
+        )
